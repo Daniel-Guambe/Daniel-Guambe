@@ -1,0 +1,46 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+
+# Configurações
+URL = "URL_DO_JOGO"
+saldo_inicial = 1000
+aposta_base = 10
+
+# Inicialização do driver do navegador
+driver = webdriver.Chrome()  # Você precisa ter o ChromeDriver instalado
+driver.get(URL)
+
+# Função para fazer uma aposta
+def fazer_aposta(valor):
+    input_aposta = driver.find_element_by_xpath("//input[@placeholder='Enter Bet']")
+    input_aposta.clear()
+    input_aposta.send_keys(str(valor))
+    input_aposta.send_keys(Keys.RETURN)
+
+# Loop principal do bot
+saldo_atual = saldo_inicial
+while True:
+    # Verifica se ainda há saldo disponível para apostar
+    if saldo_atual < aposta_base:
+        print("Saldo insuficiente. Encerrando o jogo.")
+        break
+
+    # Faz uma aposta
+    fazer_aposta(aposta_base)
+
+    # Aguarda o resultado da aposta
+    time.sleep(5)  # Aguarda 5 segundos (ajuste conforme necessário)
+
+    # Atualiza o saldo
+    saldo_element = driver.find_element_by_xpath("//div[@class='balance']")
+    saldo_atual = float(saldo_element.text.replace("$", ""))
+
+    # Exibe o saldo atual
+    print("Saldo atual: ${:.2f}".format(saldo_atual))
+
+    # Pausa entre as apostas
+    time.sleep(2)  # Pausa por 2 segundos antes da próxima aposta (ajuste conforme necessário)
+
+# Encerra o navegador
+driver.quit()
